@@ -5,7 +5,7 @@ class BetDealer {
     console.log('Listen incoming messages.');
   }
 
-  sendAnswer (message, id, sendResponse) {
+  processMessage (message, id, sendResponse) {
     sendResponse({
       err: false,
       value: 'ok'
