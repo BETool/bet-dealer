@@ -3,9 +3,11 @@
 class BetDealer {
   constructor (bg) {
     this.bg = bg;
+    this.listeners = 0;
   }
 
   addListener () {
+    this.listeners += 1;
     console.log('Listen incoming messages.');
   }
 
@@ -17,13 +19,10 @@ class BetDealer {
     switch (message.type) {
       case 'PING':
         return this.sendPong(sendResponse);
-        break;
       case 'GET_MODULES':
         return this.sendModules(sendResponse, message.payload);
-        break;
       default:
         return this.sendError(sendResponse);
-        break;
     }
   }
 
@@ -35,8 +34,8 @@ class BetDealer {
     this.sendResponse(
       sendResponse,
       {
-        payload: this.getModulses(payload)
-      }
+        payload: this.getModulses(payload),
+      },
     );
   }
 
@@ -44,18 +43,15 @@ class BetDealer {
     this.sendResponse(sendResponse, errMessage, true);
   }
 
-  sendResponse (sendResponse, message, err = false) {
-    sendResponse({
-      err: err,
-      value: message
-    });
+  sendResponse (sendResponse, value, err = false) {
+    sendResponse({ err, value });
   }
 
   getModulses (payload) {
     const modules = [];
     const config = this.getConfig();
 
-    config.forEach(part => {
+    config.forEach((part) => {
       if (
         part.h
         &&
@@ -65,7 +61,7 @@ class BetDealer {
         &&
         part.l.length
       ) {
-        part.l.forEach(l => {
+        part.l.forEach((l) => {
           modules.push(this.bg.cache.modules.get(l));
         });
       }
