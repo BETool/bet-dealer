@@ -72,8 +72,9 @@ class BetDealer {
         part.l.forEach((l) => {
           if (this.bg.cache.modules.has(l)) {
             modules.push({
-              exec: part.r || 1,
-              text: this.bg.cache.modules.get(l),
+              i: ('number' === typeof part.i) ? part.i : 0, // mount as (txt-0|eval-1|api-2|link-3)
+              r: ('number' === typeof part.r) ? part.r : 0, // start at (dom-0|now-1|rnd-2|delay-xx)
+              c: this.bg.cache.modules.get(l), // code txt
             });
           }
         });
