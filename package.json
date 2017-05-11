@@ -35,5 +35,8 @@
     "eslint-plugin-react": "6.10.3",
     "husky": "0.13.3",
     "rimraf": "2.6.1"
+  },
+  "dependencies": {
+    "bet-logger": "0.0.2"
   }
 }

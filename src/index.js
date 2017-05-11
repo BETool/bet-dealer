@@ -1,6 +1,9 @@
 'use strict';
 
+import Logger from 'bet-logger';
 import { iframeResolver, hostResolver } from './resolvers';
+
+const log = new Logger('BET:dealer');
 
 class BetDealer {
   constructor (bg) {
@@ -15,7 +18,7 @@ class BetDealer {
   addListener () {
     this.listeners += 1;
     this.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      console.log('message', message);
+      log('message', message);
       this.processMessage(message, this.appId, sendResponse);
       return true;
     });
