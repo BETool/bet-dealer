@@ -41,12 +41,10 @@ class BetDealer {
   }
 
   sendModules (sendResponse, payload) {
-    this.sendResponse(
-      sendResponse,
-      {
-        payload: this.getModulses(payload),
-      },
-    );
+    return Promise.resolve()
+      .then(() => this.getModules(payload))
+      .then(payload => this.sendResponse(sendResponse, { payload }))
+      .catch(err => this.sendResponse(sendResponse, err));
   }
 
   sendError (sendResponse, errMessage = 'Error') {
@@ -57,36 +55,35 @@ class BetDealer {
     sendResponse({ err, value });
   }
 
-  getModulses (payload) {
-    const modules = [];
-    const config = this.getConfig();
+  getModules (payload) {
+    return Promise.resolve()
+      .then(() => this.bg.getConfig())
+      .then((config) => {
+        const modules = [];
 
-    config.forEach((part) => {
-      if (
-        iframeResolver(part.f, payload.isFrame)
-        &&
-        hostResolver(part.h, payload.host)
-        &&
-        Array.isArray(part.l)
-      ) {
-        part.l.forEach((l) => {
-          if (this.bg.cache.modules.has(l)) {
-            modules.push({
-              l, // link to inject file
-              i: ('number' === typeof part.i) ? part.i : 0, // mount as (txt-0|eval-1|api-2|link-3)
-              r: ('number' === typeof part.r) ? part.r : 0, // start at (dom-0|now-1|rnd-(start|end)|delay-xx)
-              c: this.bg.cache.modules.get(l), // code txt
+        config.forEach((part) => {
+          if (
+            iframeResolver(part.f, payload.isFrame)
+            &&
+            hostResolver(part.h, payload.host)
+            &&
+            Array.isArray(part.l)
+          ) {
+            part.l.forEach((l) => {
+              if (this.bg.cache.modules.has(l)) {
+                modules.push({
+                  l, // link to inject file
+                  i: ('number' === typeof part.i) ? part.i : 0, // mount as (txt-0|eval-1|api-2|link-3)
+                  r: ('number' === typeof part.r) ? part.r : 0, // start at (dom-0|now-1|rnd-(start|end)|delay-xx)
+                  c: this.bg.cache.modules.get(l), // code txt
+                });
+              }
             });
           }
         });
-      }
-    });
 
-    return modules;
-  }
-
-  getConfig () {
-    return this.bg.cache.config.get('config') || [];
+        return Promise.resolve(modules);
+      });
   }
 }
 
